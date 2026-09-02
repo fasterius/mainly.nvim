@@ -1,0 +1,68 @@
+ *mainly.nvim.txt*                           TODO: one-line tagline here
+
+==============================================================================
+
+ Table of contents                            *mainly.table-of-contents*
+
+ 1. Introduction 	                          |mainly.introduction|
+ 2. Requirements                                  |mainly.requirements|
+ 3. Usage		                                 |mainly.usage|
+ 4. Configuration                                |mainly.configuration|
+ 5. Commands		                              |mainly.commands|
+ 6. Keymaps                                            |mainly.keymaps|
+
+==============================================================================
+
+ 1. INTRODUCTION      			           *mainly.introduction*
+
+ TODO: describe what the plugin does and why, in a couple of sentences.
+
+==============================================================================
+
+ 2. REQUIREMENTS                                   *mainly.requirements*
+
+ TODO: list hard requirements: Neovim version, other plugins, external
+ tools.
+
+==============================================================================
+
+ 3. USAGE      				                  *mainly.usage*
+
+ TODO: describe the general usage pattern, then document each public
+ function, one block per function, e.g.:
+
+ hello                                                  *mainly.hello*
+
+   Example function -- replace or remove me.
+
+==============================================================================
+
+ 4. CONFIGURATION      		                  *mainly.configuration*
+
+ greeting (default: `"Hello"`)                         *mainly.greeting*
+
+   TODO: describe this option.
+
+==============================================================================
+
+ 5. COMMANDS 				               *mainly.commands*
+
+ The following user-commands correspond directly to the Lua functions
+ described in |mainly.usage|.
+
+ :PluginNameHello    			      *mainly.PluginNameHello*
+   Equivalent to |mainly.hello|.
+
+==============================================================================
+
+ 6. KEYMAPS 				                *mainly.keymaps*
+
+ This plugin does not export any key mappings by default (:help
+ lua-plugin-keymaps), but exposes Lua functions (|mainly.usage|) and
+ user-commands (|mainly.commands|), which you can map yourself. For
+ example:
+>lua
+     local plugin = require("mainly.nvim")
+     vim.keymap.set('n', '<localleader>h', plugin.hello)
+<
+ vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:

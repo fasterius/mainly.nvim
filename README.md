@@ -1,11 +1,28 @@
-# `mainly.nvim` for `main.nf`
+# 🏷️ Mainly for `main.nf`
 
-A Neovim plugin for disambiguating between `main.nf` files in Nextflow by adding
-the (grand)parent directory name to the filename, for use in your statusline.
+> Disambiguating `main.nf` and `main.nf.test` files in your statusline
+
+When working with Nextflow pipelines, many files are often named `main.nf` by
+convention: one per module, subworkflow and pipeline. In a statusline showing
+just the filename, they're indistinguishable. `mainly.nvim` fixes this by
+converting each `main.nf` filename to a contextual label based on its component
+(module, subworkflow) or pipeline name, for use in your statusline:
+
+| File path                                   | Statusline label              |
+| ------------------------------------------- | ----------------------------- |
+| `modules/nf-core/fastqc/main.nf`            | `fastqc/main.nf`              |
+| `modules/nf-core/bcftools/view/main.nf`     | `bcftools/view/main.nf`       |
+| `modules/local/mymodule/tests/main.nf.test` | `mymodule/tests/main.nf.test` |
+| `~/rnaseq/main.nf`                          | `rnaseq/main.nf`              |
 
 ## ✨ Features
 
-- TODO
+- Disambiguation of `main.nf` and `main.nf.test` files through structured labels
+- Validation of component and pipeline directory structure
+- Configurable list of allowed component sources (`local` and `nf-core` by
+  default)
+- Optionally include the full component path (_e.g._ `modules/nf-core/...`) in
+  the label
 
 ## 📚 Requirements
 
@@ -18,34 +35,48 @@ You can install `mainly.nvim` with your preferred package manager:
 ```lua
 {
     "fasterius/mainly.nvim",
-    config = true,
 }
 ```
 
+No setup is required for the defaults; pass `opts` or call `setup()` to
+override them.
+
 ## 🚀 Usage
 
-<!-- TODO: describe usage; see [the documentation](doc/mainly.nvim.nvim.txt)
-for details. -->
-
-`mainly.nvim` does not set any key mappings by default, but instead provides Lua
-functions and user-commands that you can set key binds for:
-
-- `hello`: TODO describe.
+`mainly.nvim` can be used together with your statusline, intended to replace the
+filename component of your statusline. The `mainly.filename()` function is what
+should be used, and an extremely minimal example is here given for the
+[Lualine](https://github.com/nvim-lualine/lualine.nvim) plugin:
 
 ```lua
-local mainly = require("mainly.nvim")
-vim.keymap.set('n', '<localleader>h', mainly.hello)
+local mainly_filename = require("mainly").filename
+require("lualine").setup({
+    sections = {
+        lualine_c = { mainly_filename },
+    },
+    inactive_sections = {
+        lualine_c = { mainly_filename },
+    }
+})
 ```
+
+The `mainly.filename()` function returns a string, so it should be able to be
+integrated into whatever variant of statusline you prefer, whether from a plugin
+or by using Neovim's built-in functionality.
 
 ## ⚙️ Configuration
 
-`mainly.nvim` comes with the following options and their respective
-defaults:
+`mainly.nvim` comes with the following options and their respective defaults:
 
 ```lua
 {
-    -- TODO: describe this option.
-    greeting = "Hello",
+    -- The allowed sources for components, used for validating the final
+    -- filename label structure.
+    allowed_sources = { "local", "nf-core" },
+
+    -- Whether to include the full component path for the label, _i.e._
+    -- including `<component>/<source>` as a prefix for `<name>/main.nf`.
+    include_component = false,
 }
 ```
 
@@ -53,13 +84,12 @@ A complete installation and configuration might look something like this:
 
 ```lua
 {
-    "fasterius/mainly.nvim.nvim",
+    "fasterius/mainly.nvim",
     config = function()
-        local mainly = require("mainly.nvim")
-        mainly.setup({
-            greeting = "Hello",
+        require("mainly").setup({
+            allowed_sources = { "local", "nf-core", "my_source" },
+            include_component = true,
         })
-        vim.keymap.set("n", "<localleader>h", mainly.hello)
     end,
 }
 ```
@@ -68,6 +98,5 @@ A complete installation and configuration might look something like this:
 
 The core of `mainly.nvim` lived in my own Neovim configuration for quite some
 time before I thought it was time to make it into a proper plugin. It is meant
-to be used together with your statusline for working with Nextflow development,
-where it disambiguates the abundantly available `main.nf` filename by added its
-(grand)parent directory name to the filename.
+to be used together with your statusline; a niche use case for Nextflow
+development with Neovim. I hope it's as useful to you as it has been to me!

@@ -6,10 +6,11 @@ local M = {}
 
 -- Default configuration
 ---@type mainly.Opts
-M.opts = {
+M.defaults = {
     allowed_sources = { "local", "nf-core" },
     include_component = false,
 }
+M.opts = vim.deepcopy(M.defaults)
 
 ---Setup with options and validation
 ---@param opts mainly.Opts | nil

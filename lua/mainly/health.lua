@@ -1,15 +1,12 @@
 local M = {}
 
--- Configuration
-local known_opts = {
-    allowed_sources = { "local", "nf-core" },
-}
+local config = require("mainly.config")
 
----Health check
+-- Health check
 function M.check()
     vim.health.start("mainly.nvim")
 
-    -- Check require Neovim version
+    -- Check required Neovim version
     if vim.fn.has("nvim-0.10.0") == 1 then
         vim.health.ok("Neovim version is >= 0.10.0")
     else
@@ -17,10 +14,9 @@ function M.check()
     end
 
     -- Check for unknown configuration options
-    local opts = require("mainly").opts
     local unknown = {}
-    for key in pairs(opts) do
-        if not known_opts[key] then
+    for key in pairs(config.opts) do
+        if config.defaults[key] == nil then
             table.insert(unknown, key)
         end
     end
@@ -29,7 +25,7 @@ function M.check()
     else
         vim.health.warn(
             "Unrecognised configuration option(s): " .. table.concat(unknown, ", "),
-            "Check for typos; see |mainly.configuration| for the supported options"
+            "See |mainly.configuration| for the supported options"
         )
     end
 end

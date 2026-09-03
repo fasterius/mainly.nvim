@@ -2,7 +2,8 @@ local M = {}
 
 local config = require("mainly.config")
 
-local KINDS = { "modules", "subworkflows", "workflows" }
+-- Valid component names
+local KINDS = { "modules", "subworkflows" }
 
 ---Get current file path
 ---@return string
@@ -22,10 +23,11 @@ local function split(path)
 end
 
 ---@class mainly.ComponentInfo
----@field kind string           One of "modules", "subworkflows" or "workflows"
----@field source string         Component source, e.g. "nf-core" or "local"
----@field name string           Top-level component name, e.g. "bcftools"
----@field subname string | nil  Submodule, e.g. "view"; nil if none
+---@field kind string           "modules"|"subworkflows"|"pipelines"
+---@field source string | nil   Component source; nil for pipeline root
+---@field name string | nil     Top-level component name; nil for pipeline root
+---@field subname string | nil  Submodule; nil for pipeline root or when missing
+---@field pipeline string | nil Root pipeline; nil for all other components
 ---@field is_test boolean       True for `main.nf.test`
 
 ---Parse full file path
@@ -51,9 +53,21 @@ function M.parse(path)
         end
     end
 
-    -- Abort if no anchor is found
+    -- No component found: check for test files and pipeline root
     if not kind_idx then
-        return nil
+        -- Abort if test files are found outside components
+        if is_test then
+            return nil
+        end
+        -- Abort if no pipeline root is found, otherwise return pipeline root
+        if #parts < 2 then
+            return nil
+        end
+        return {
+            kind = "pipelines",
+            pipeline = parts[#parts - 1],
+            is_test = false,
+        }
     end
 
     -- Get the source index
@@ -100,14 +114,23 @@ function M.format()
     -- Get component information
     local component = M.parse(path)
 
-    -- Return normal filename if filepath is not proper Nextflow component or is
-    -- not coming from an allowed source
+    -- Not a component or root pipeline: return normal filename
     local filename = vim.fn.fnamemodify(path, ":t")
-    if component == nil or not vim.tbl_contains(config.opts.allowed_sources, component.source) then
+    if component == nil then
         return filename
     end
 
-    -- Check for subname existance and start building label
+    -- Root pipeline: return pipeline name + filename
+    if component.kind == "pipelines" then
+        return component.pipeline .. "/" .. filename
+    end
+
+    -- Component: check that component source is allowed
+    if not vim.tbl_contains(config.opts.allowed_sources, component.source) then
+        return filename
+    end
+
+    -- Component: check for subname existence and start formatting the label
     local label
     if component.subname ~= nil then
         label = component.name .. "/" .. component.subname
@@ -115,13 +138,12 @@ function M.format()
         label = component.name
     end
 
-    -- Expand label with "tests" if appropriate
+    -- Component: expand label with "/tests/" (if appropriate) and return
     if component.is_test then
-        label = label .. "/" .. "tests/" .. filename
+        label = label .. "/tests/" .. filename
     else
         label = label .. "/" .. filename
     end
-
     return label
 end
 

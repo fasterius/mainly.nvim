@@ -1,68 +1,114 @@
- *mainly.nvim.txt*                           TODO: one-line tagline here
+ *mainly.nvim.txt*           Disambiguating `main.nf` files in your statusline
 
 ==============================================================================
 
- Table of contents                            *mainly.table-of-contents*
+ Table of contents                                 *mainly.table-of-contents*
 
  1. Introduction 	                          |mainly.introduction|
  2. Requirements                                  |mainly.requirements|
  3. Usage		                                 |mainly.usage|
  4. Configuration                                |mainly.configuration|
- 5. Commands		                              |mainly.commands|
+ 5. Health                                              |mainly.health|
  6. Keymaps                                            |mainly.keymaps|
 
 ==============================================================================
 
- 1. INTRODUCTION      			           *mainly.introduction*
+ 1. INTRODUCTION                                        *mainly.introduction*
 
- TODO: describe what the plugin does and why, in a couple of sentences.
-
-==============================================================================
-
- 2. REQUIREMENTS                                   *mainly.requirements*
-
- TODO: list hard requirements: Neovim version, other plugins, external
- tools.
+ When working with Nextflow pipelines, many files are named `main.nf` by
+ convention: one per module, subworkflow and pipeline. In a statusline showing
+ just the filename, they're indistinguishable. `mainly.nvim` fixes this by
+ giving each `main.nf` (and `main.nf.test`) a contextual label based on its
+ parent component or pipeline name, for use in your statusline:
 
 ==============================================================================
 
- 3. USAGE      				                  *mainly.usage*
+ 2. REQUIREMENTS                                        *mainly.requirements*
 
- TODO: describe the general usage pattern, then document each public
- function, one block per function, e.g.:
+ - Neovim >= `0.10.0`
 
- hello                                                  *mainly.hello*
-
-   Example function -- replace or remove me.
-
-==============================================================================
-
- 4. CONFIGURATION      		                  *mainly.configuration*
-
- greeting (default: `"Hello"`)                         *mainly.greeting*
-
-   TODO: describe this option.
+ `mainly.nvim` has no dependencies on other plugins. It is commonly paired
+ with a statusline plugin (_e.g._ lualine.nvim
+ (https://github.com/nvim-lualine/lualine.nvim)), but that is optional; see
+ |mainly.usage|.
 
 ==============================================================================
 
- 5. COMMANDS 				               *mainly.commands*
+ 3. USAGE                                                      *mainly.usage*
 
- The following user-commands correspond directly to the Lua functions
- described in |mainly.usage|.
+ `mainly.nvim` exposes two Lua functions, meant to be called from your own
+ configuration rather than interactively.
 
- :PluginNameHello    			      *mainly.PluginNameHello*
-   Equivalent to |mainly.hello|.
+ setup({opts})                                               *mainly.setup*
+
+   Configures the plugin. Optional -- the defaults are used if `setup()`
+   is never called. `{opts}` is validated and merged with the defaults;
+   see |mainly.configuration| for the available keys.
+>lua
+     require("mainly").setup({
+         allowed_sources = { "local", "nf-core", "my_source" },
+         include_component = true,
+     })
+<
+ filename()                                               *mainly.filename*
+
+   Returns the formatted label (a string) for the current buffer, to be
+   used as the filename component of a statusline. Files other than
+   `main.nf` or `main.nf.test` (or components with a source not present in
+   |mainly.allowed_sources|) fall back to the buffer's plain filename.
+
+   This is the function meant for statusline integration, illustrated
+   here for [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim):
+>lua
+     local mainly_filename = require("mainly").filename
+     require("lualine").setup({
+         sections = {
+             lualine_c = { mainly_filename },
+         },
+         inactive_sections = {
+             lualine_c = { mainly_filename },
+         },
+     })
+<
+   Since it returns a plain string, it can be used with any statusline
+   plugin, or Neovim's built-in 'statusline'.
 
 ==============================================================================
 
- 6. KEYMAPS 				                *mainly.keymaps*
+ 4. CONFIGURATION                                      *mainly.configuration*
+
+ allowed_sources (default: `{ "local", "nf-core" }`) *mainly.allowed_sources*
+
+   The allowed sources for components, used to validate the component found in
+   a file's path (_e.g._ the `nf-core` in `modules/nf-core/fastqc/main.nf`).
+   Components with a source not in this list fall back to the plain filename
+   in |mainly.filename|.
+
+ include_component (default: `false`)              *mainly.include_component*
+
+   Whether to prefix the label with `<kind>/<source>/`, _i.e._ the full
+   component path, instead of just `<name>/main.nf`.
+
+==============================================================================
+
+ 5. HEALTH                                                    *mainly.health*
+
+ `mainly.nvim` integrates with |:checkhealth|; run `:checkhealth mainly`
+ to check:
+
+ - That the running Neovim version satisfies |mainly.requirements|.
+ - That the current configuration (set _e.g._ via |mainly.setup|) contains no
+   unrecognised options.
+
+==============================================================================
+
+ 6. KEYMAPS                                                  *mainly.keymaps*
 
  This plugin does not export any key mappings by default (:help
- lua-plugin-keymaps), but exposes Lua functions (|mainly.usage|) and
- user-commands (|mainly.commands|), which you can map yourself. For
- example:
->lua
-     local plugin = require("mainly.nvim")
-     vim.keymap.set('n', '<localleader>h', plugin.hello)
-<
+ lua-plugin-keymaps), nor does it define any that make sense to map yourself:
+ |mainly.filename| is not an interactive action but a statusline-component
+ function, meant to be wired up as shown in |mainly.usage| rather than bound
+ to a key.
+
+==============================================================================
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:

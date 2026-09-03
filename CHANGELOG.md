@@ -1,6 +1,8 @@
 # Changelog
 
-## [v1.0.0]
+## [1.0.0]
+
+Initial stable release.
 
 - Disambiguation of `main.nf` and `main.nf.test` files, including validation of
   component/pipeline directory structure.

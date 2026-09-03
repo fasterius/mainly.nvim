@@ -1,23 +1,12 @@
 local M = {}
 
 local label = require("mainly.label")
+local config = require("mainly.config")
 
----@class mainly.Opts
----@field allowed_sources? table
-
--- Default configuration
----@type mainly.Opts
-M.opts = {
-    allowed_sources = { "local", "nf-core" },
-}
-
----Setup with options and validation
+---Setup with user options
 ---@param opts mainly.Opts | nil
 function M.setup(opts)
-    opts = opts or {}
-    vim.validate("opts", opts, "table")
-    vim.validate("opts.allowed_sources", opts.allowed_sources, "table", true)
-    M.opts = vim.tbl_extend("force", M.opts, opts)
+    config.setup(opts)
 end
 
 ---Get final formatted filename

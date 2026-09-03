@@ -125,12 +125,12 @@ function M.format()
         return component.pipeline .. "/" .. filename
     end
 
-    -- Component: check that component source is allowed
+    -- Check that component source is allowed
     if not vim.tbl_contains(config.opts.allowed_sources, component.source) then
         return filename
     end
 
-    -- Component: check for subname existence and start formatting the label
+    -- Check for subname existence and start formatting the label
     local label
     if component.subname ~= nil then
         label = component.name .. "/" .. component.subname
@@ -138,7 +138,12 @@ function M.format()
         label = component.name
     end
 
-    -- Component: expand label with "/tests/" (if appropriate) and return
+    -- Prefix label with component name (if applicable)
+    if config.opts.include_component then
+        label = component.kind .. "/" .. component.source .. "/" .. label
+    end
+
+    -- Expand label with "/tests/" (if applicable) and return
     if component.is_test then
         label = label .. "/tests/" .. filename
     else

@@ -56,12 +56,9 @@ function M.parse(path)
         return nil
     end
 
-    -- Get the source index and check against allowed sources
+    -- Get the source index
     local source_idx = kind_idx + 1
     if source_idx > #parts then
-        return nil
-    end
-    if not vim.tbl_contains(config.opts.allowed_sources, parts[source_idx]) then
         return nil
     end
 
@@ -103,9 +100,10 @@ function M.build()
     -- Get component information
     local component = M.parse(path)
 
-    -- Return normal filename if filepath is not proper Nextflow component
+    -- Return normal filename if filepath is not proper Nextflow component or is
+    -- not coming from an allowed source
     local filename = vim.fn.fnamemodify(path, ":t")
-    if component == nil then
+    if component == nil or not vim.tbl_contains(config.opts.allowed_sources, component.source) then
         return filename
     end
 

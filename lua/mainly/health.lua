@@ -7,10 +7,10 @@ function M.check()
     vim.health.start("mainly.nvim")
 
     -- Check required Neovim version
-    if vim.fn.has("nvim-0.10.0") == 1 then
-        vim.health.ok("Neovim version is >= 0.10.0")
+    if vim.fn.has("nvim-0.11.0") == 1 then
+        vim.health.ok("Neovim version is >= 0.11.0")
     else
-        vim.health.error("Neovim version is too old", "mainly.nvim requires at least Neovim v0.10.0")
+        vim.health.error("Neovim version is too old", "mainly.nvim requires at least Neovim v0.11.0")
     end
 
     -- Check for unknown configuration options

@@ -12,7 +12,7 @@ end
 ---Get final formatted filename
 ---@return string
 function M.filename()
-    return label.build()
+    return label.format()
 end
 
 return M

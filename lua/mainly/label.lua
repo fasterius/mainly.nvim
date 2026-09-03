@@ -93,9 +93,9 @@ function M.parse(path)
     }
 end
 
----Build a display label for a Nextflow component
+---Format a display label for a Nextflow component
 ---@return string
-function M.build()
+function M.format()
     local path = get_path()
     -- Get component information
     local component = M.parse(path)

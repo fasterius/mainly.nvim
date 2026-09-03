@@ -1,5 +1,7 @@
 local M = {}
 
+local label = require("mainly.label")
+
 ---@class mainly.Opts
 ---@field allowed_sources? table
 
@@ -18,9 +20,10 @@ function M.setup(opts)
     M.opts = vim.tbl_extend("force", M.opts, opts)
 end
 
--- TODO: replace with your plugin's real public functions. Keep argument
--- handling here minimal; once there's more than a trivial amount of logic
--- for a given concern, split it into its own submodule (see `util.lua` for
--- an example shared helper)
+---Get final formatted filename
+---@return string
+function M.filename()
+    return label.format(label.path())
+end
 
 return M
